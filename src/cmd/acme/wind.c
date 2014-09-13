@@ -563,7 +563,7 @@ winsettag(Window *w)
 	f = w->body.file;
 	for(i=0; i<f->ntext; i++){
 		v = f->text[i]->w;
-		if(v->col->safe || v->body.fr.maxlines>0)
+		if((v->col!=nil && v->col->safe) || v->body.fr.maxlines>0)
 			winsettag1(v);
 	}
 }
