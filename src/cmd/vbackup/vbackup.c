@@ -92,7 +92,7 @@ char*	guessmountplace(char *dev);
 void
 usage(void)
 {
-	fprint(2, "usage: vbackup [-DVnv] [-m mtpt] [-M mtpl] [-s secs] [-w n] disk [score]\n");
+	fprint(2, "usage: vbackup [-DVnv] [-m mtpt] [-M mtpl] [-s secs] [-w n] [-c cachesize] disk [score]\n");
 	threadexitsall("usage");
 }
 
@@ -117,6 +117,7 @@ threadmain(int argc, char **argv)
 
 	mountname = sysname();
 	mountplace = nil;
+	csize = 50;
 	ARGBEGIN{
 	default:
 		usage();
@@ -154,6 +155,9 @@ threadmain(int argc, char **argv)
 	case 'w':
 		nwritethread = atoi(EARGF(usage()));
 		break;
+	case 'c':
+		csize = atoi(EARGF(usage()));
+		break;
 	}ARGEND
 
 	if(argc != 1 && argc != 2)
@@ -185,7 +189,6 @@ threadmain(int argc, char **argv)
 	 */
 	zero = vtmallocz(fsys->blocksize);
 	bsize = fsys->blocksize;
-	csize = 50;	/* plenty; could probably do with 5 */
 
 	if(verbose)
 		fprint(2, "cache %d blocks\n", csize);
