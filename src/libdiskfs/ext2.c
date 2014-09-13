@@ -441,6 +441,11 @@ inoperm(Inode *ino, SunAuthUnix *au, int need)
 	if(allowall)
 		return Nfs3Ok;
 
+    	// XXXstroucki root can do it.
+    	if (au->uid == 0) {
+      	  return Nfs3Ok;
+   	}
+
 	have = ino->mode&0777;
 	if(ino->uid == au->uid)
 		have >>= 6;
@@ -488,6 +493,20 @@ ext2access(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int want, u32int *got,
 		have >>= 3;
 
 	*got = 0;
+
+	// XXXstroucki root can do it (again)
+	if (au->uid == 0) {
+		if (want & Nfs3AccessRead) {
+			*got |= Nfs3AccessRead;
+		}
+		if (want & Nfs3AccessLookup) {
+			*got |= Nfs3AccessLookup;
+		}
+		if (want & Nfs3AccessExecute) {
+			*got |= Nfs3AccessExecute;
+		}
+	}
+
 	if((want&Nfs3AccessRead) && (have&AREAD))
 		*got |= Nfs3AccessRead;
 	if((want&Nfs3AccessLookup) && (ino.mode&IFMT)==IFDIR && (have&AEXEC))
