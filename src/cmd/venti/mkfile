@@ -9,6 +9,8 @@ TARG=\
 	sync\
 	write\
 	dump\
+	readfile\
+	writefile\
 
 BIN=$BIN/venti
 
