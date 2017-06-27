@@ -11,7 +11,7 @@ truerand(void)
 	static char *randfile;
 
 	if(randfd < 0){
-		randfd = open(randfile="/dev/random", OREAD);
+		randfd = open(randfile="/dev/urandom", OREAD);
 		/* OpenBSD lets you open /dev/random but not read it! */
 		if(randfd < 0 || read(randfd, buf, 1) != 1)
 			randfd = open(randfile="/dev/srandom", OREAD);	/* OpenBSD */

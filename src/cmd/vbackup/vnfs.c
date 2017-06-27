@@ -90,7 +90,7 @@ threadmain(int argc, char **argv)
 	sunfmtinstall(&nfs3prog);
 	sunfmtinstall(&nfsmount3prog);
 
-	addr = "udp!*!2049";
+	addr = "udp!127.0.0.1!2049";
 	blocksize = 8192;
 	cachesize = 400;
 	srv = sunsrv();
