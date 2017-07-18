@@ -310,7 +310,14 @@ hdecrypt(Nfs3Handle *h)
 	}
 	if(memcmp(h->h, sessid, SessidSize) != 0)
 		return Nfs3ErrStale;	/* give benefit of doubt */
-	h->len = *(u32int*)(h->h+SessidSize);
+
+        // handle strict aliasing with the union
+        union {
+          uchar* uc;
+          u32int* ui;
+        } typeunion;
+        typeunion.uc = (h->h + SessidSize);
+        h->len = *(typeunion.ui);
 	if(h->len >= MaxHandleSize-HeaderSize)
 		return Nfs3ErrBadHandle;
 	memmove(h->h, h->h+HeaderSize, h->len);
