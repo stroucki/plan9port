@@ -229,12 +229,8 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 			d->mode |= DMDEVICE;
 			d->qid.path = ('c'<<16)|st->st_rdev;
 		}
-		/* fetch real size for disks */
 		if(S_ISBLK(lst->st_mode) || S_ISCHR(lst->st_mode)){
-			if((fd = open(name, O_RDONLY)) >= 0){
-				d->length = disksize(fd, st);
-				close(fd);
-			}
+			d->length = 0;
 		}
 	}
 
