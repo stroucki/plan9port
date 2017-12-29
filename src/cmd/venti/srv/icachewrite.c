@@ -260,6 +260,8 @@ icachewritecoord(void *v)
 
 		trace(TraceProc, "icachewritecoord start flush");
 		if(iwrite.as.arena){
+// should have a flag to set number of parallel writes
+/* 
 			for(i=0; i<ix->nsects; i++)
 				send(ix->sects[i]->writechan, 0);
 			if(ix->bloom)
@@ -270,6 +272,17 @@ icachewritecoord(void *v)
 				err |= recvul(ix->sects[i]->writedonechan);
 			if(ix->bloom)
 				err |= recvul(ix->bloom->writedonechan);
+*/
+			err = 0;
+			for(i=0; i<ix->nsects; i++) {
+				send(ix->sects[i]->writechan, 0);
+				err |= recvul(ix->sects[i]->writedonechan);
+			}
+
+			if(ix->bloom) {
+				send(ix->bloom->writechan, 0);
+				err |= recvul(ix->bloom->writedonechan);
+			}
 
 			trace(TraceProc, "icachewritecoord donewrite err=%d", err);
 			if(err == 0){
