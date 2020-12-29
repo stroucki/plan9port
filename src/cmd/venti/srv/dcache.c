@@ -133,19 +133,47 @@ pbhash(u64int addr)
 DBlock*
 getdblock(Part *part, u64int addr, int mode)
 {
+	// XXXstroucki update by qty 1 costs >3%
+	static volatile unsigned int readcount = 0;
+        static volatile unsigned int writecount = 0;
+        static volatile unsigned int opcount = 0;
+
 	DBlock *b;
 	
 	b = _getdblock(part, addr, mode, 1);
+/*
 	if(mode == OREAD || mode == ORDWR)
 		addstat(StatDcacheRead, 1);
 	if(mode == OWRITE || mode == ORDWR)
 		addstat(StatDcacheWrite, 1);
+*/
+	if(mode == OREAD || mode == ORDWR)
+		readcount++;
+	if(mode == OWRITE || mode == ORDWR)
+		writecount++;
+
+        opcount++;
+        if (opcount == 100) {
+		opcount = 0;
+		unsigned int xreadcount = readcount;
+		unsigned int xwritecount = writecount;
+		readcount = 0;
+		writecount = 0;
+		addstat(StatDcacheRead, xreadcount);
+		addstat(StatDcacheWrite, xwritecount);
+	}
 	return b;
 }
 
 DBlock*
 _getdblock(Part *part, u64int addr, int mode, int load)
 {
+        static volatile unsigned int counthit = 0;
+        static volatile unsigned int countlookup = 0;
+        static volatile unsigned int countmiss = 0;
+        static volatile unsigned int countapartreads = 0;
+        static volatile unsigned int countapartreadbytes = 0;
+
 	DBlock *b;
 	u32int h, size, ms;
 
@@ -167,8 +195,10 @@ _getdblock(Part *part, u64int addr, int mode, int load)
 again:
 	for(b = dcache.heads[h]; b != nil; b = b->next){
 		if(b->part == part && b->addr == addr){
-			if(load)
-				addstat2(StatDcacheHit, 1, StatDcacheLookup, 1);
+			if(load) {
+				counthit++;
+				countlookup++;
+			}
 			goto found;
 		}
 	}
@@ -187,7 +217,8 @@ again:
 	 * makes cache hits system-call bound.
 	 */
 	ms = msec();
-	addstat2(StatDcacheLookup, 1, StatDcacheMiss, 1);
+	countmiss++;
+	countlookup++;
 
 	b = bumpdblock();
 	if(b == nil){
@@ -220,6 +251,23 @@ ZZZ this is not reasonable
 	b->size = 0;
 
 found:
+	if (countlookup == 100) {
+		unsigned int misses = countmiss;
+		unsigned int hits = counthit;
+		unsigned int reads = countapartreads;
+		unsigned int readbytes = countapartreadbytes;
+		countlookup = 0;
+		counthit = 0;
+		countmiss = 0;
+		countapartreads = 0;
+		countapartreadbytes = 0;
+		addstat(StatDcacheLookup, 100);
+		addstat(StatDcacheMiss, misses);
+		addstat(StatDcacheHit, hits);
+		addstat(StatApartRead, reads);
+		addstat(StatApartReadBytes, readbytes);
+	}
+
 	b->ref++;
 	b->used2 = b->used;
 	b->used = dcache.now++;
@@ -234,20 +282,20 @@ found:
 	qunlock(&dcache.lock);
 
 	trace(TraceBlock, "getdblock lock");
-	addstat(StatDblockStall, 1);
+	//addstat(StatDblockStall, 1);
 	if(mode == OREAD)
 		rlock(&b->lock);
 	else
 		wlock(&b->lock);
-	addstat(StatDblockStall, -1);
+	//addstat(StatDblockStall, -1);
 	trace(TraceBlock, "getdblock locked");
 
 	if(b->size != size){
 		if(mode == OREAD){
-			addstat(StatDblockStall, 1);
+			//addstat(StatDblockStall, 1);
 			runlock(&b->lock);
 			wlock(&b->lock);
-			addstat(StatDblockStall, -1);
+			//addstat(StatDblockStall, -1);
 		}
 		if(b->size < size){
 			if(mode == OWRITE)
@@ -261,16 +309,16 @@ found:
 					return nil;
 				}
 				trace(TraceBlock, "getdblock readpartdone");
-				addstat(StatApartRead, 1);
-				addstat(StatApartReadBytes, size-b->size);
+				countapartreads++;
+				countapartreadbytes += size-b->size;
 			}
 		}
 		b->size = size;
 		if(mode == OREAD){
-			addstat(StatDblockStall, 1);
+			//addstat(StatDblockStall, 1);
 			wunlock(&b->lock);
 			rlock(&b->lock);
-			addstat(StatDblockStall, -1);
+			//addstat(StatDblockStall, -1);
 		}
 	}
 
