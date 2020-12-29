@@ -3,7 +3,8 @@
 #include "fns.h"
 
 Index			*mainindex;
-int			paranoid = 1;		/* should verify hashes on disk read */
+// XXXstroucki paranoid cost 8%
+int			paranoid = 0;		/* should verify hashes on disk read */
 
 static ArenaPart	*configarenas(char *file);
 static ISect		*configisect(char *file);
