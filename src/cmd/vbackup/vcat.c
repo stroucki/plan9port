@@ -55,18 +55,17 @@ threadmain(int argc, char **argv)
 		sysfatal("fsysopen: %r");
 
 	zero = emalloc(fsys->blocksize);
+        zerotoo = 1;
 	fprint(2, "%d blocks total\n", fsys->nblock);
 	n = 0;
 	for(i=0; i<fsys->nblock; i++){
 		if((b = fsysreadblock(fsys, i)) != nil){
-			if(pwrite(1, b->data, fsys->blocksize,
-			    (u64int)fsys->blocksize*i) != fsys->blocksize)
+			if(write(1, b->data, fsys->blocksize) != fsys->blocksize)
 				fprint(2, "error writing block %lud: %r\n", i);
 			n++;
 			blockput(b);
 		}else if(zerotoo || i==fsys->nblock-1)
-			if(pwrite(1, zero, fsys->blocksize,
-			    (u64int)fsys->blocksize*i) != fsys->blocksize)
+			if(write(1, zero, fsys->blocksize) != fsys->blocksize)
 				fprint(2, "error writing block %lud: %r\n", i);
 	}
 	fprint(2, "%d blocks in use, %d file reads\n", n, nfilereads);
