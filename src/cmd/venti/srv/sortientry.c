@@ -59,7 +59,8 @@ sortrawientries(Index *ix, Part *tmp, u64int *base, Bloom *bloom)
 	IEBucks *ib;
 	u64int clumps, sorted;
 	u32int n;
-	int i, ok;
+	u32int i;
+	int ok;
 
 /* ZZZ should allow configuration of bits, bucket size */
 	ib = initiebucks(tmp, 8, 64*1024);
@@ -115,7 +116,8 @@ readarenainfo(IEBucks *ib, Arena *arena, u64int a, Bloom *b)
 	IEntry ie;
 	ClumpInfo *ci, *cis;
 	u32int clump;
-	int i, n, ok, nskip;
+	u32int i, n;
+	int ok, nskip;
 
 	if(arena->memstats.clumps)
 		fprint(2, "\tarena %s: %d entries\n", arena->name, arena->memstats.clumps);

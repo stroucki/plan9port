@@ -702,7 +702,7 @@ struct Dir {
 	ulong	mode;	/* permissions */
 	ulong	atime;	/* last read time */
 	ulong	mtime;	/* last write time */
-	vlong	length;	/* file length */
+	uvlong	length;	/* file length */
 	char	*name;	/* last element of path */
 	char	*uid;	/* owner name */
 	char	*gid;	/* group name */

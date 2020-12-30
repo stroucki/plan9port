@@ -380,7 +380,7 @@ reopen:
 static struct
 {
 	char *name;
-	int *p;
+	uint *p;
 } namedints[] =
 {
 	"compress",	&compressblocks,
@@ -517,7 +517,8 @@ sindex(HConnect *c)
 	Index *ix;
 	Arena *arena;
 	vlong clumps, cclumps, uncsize, used, size;
-	int i, r, active;
+	u32int i, active;
+	int r;
 
 	r = hsettext(c);
 	if(r < 0)
@@ -720,7 +721,8 @@ dindex(HConnect *c)
 {
 	Hio *hout;
 	Index *ix;
-	int i, r;
+	u32int i;
+	int r;
 
 	r = hsettext(c);
 	if(r < 0)
@@ -939,7 +941,7 @@ static char* graphname[] =
 static int
 findname(char *s)
 {
-	int i;
+	u32int i;
 
 	for(i=0; i<nelem(graphname); i++)
 		if(strcmp(graphname[i], s) == 0)
@@ -1132,7 +1134,7 @@ xmlu64int(Hio *hout, u64int v, char *tag)
 void
 vtloghdump(Hio *h, VtLog *l)
 {
-	int i;
+	u32int i;
 	VtLogChunk *c;
 	char *name;
 	
@@ -1148,7 +1150,7 @@ vtloghdump(Hio *h, VtLog *l)
 		for(i=0; i<l->nchunk; i++){
 			if(++c == l->chunk+l->nchunk)
 				c = l->chunk;
-			hwrite(h, c->p, c->wp-c->p);
+			hwrite(h, c->p, (int)(c->wp-c->p));
 		}
 	}
 	hprint(h, "</body></html>\n");

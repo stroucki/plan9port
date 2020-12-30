@@ -208,10 +208,10 @@ int vtscorefmt(Fmt*);
  * error-checking malloc et al.
  */
 void	vtfree(void *);
-void*	vtmalloc(int);
-void*	vtmallocz(int);
-void*	vtrealloc(void *p, int);
-void*	vtbrk(int n);
+void*	vtmalloc(ulong);
+void*	vtmallocz(ulong);
+void*	vtrealloc(void *p, ulong);
+void*	vtbrk(ulong n);
 char*	vtstrdup(char *);
 
 /*
@@ -496,9 +496,9 @@ long	vtfilewrite(VtFile*, void*, long, vlong);
 
 int	vttimefmt(Fmt*);
 
-extern int chattyventi;
-extern int ventidoublechecksha1;
-extern int ventilogging;
+extern uint chattyventi;
+extern uint ventidoublechecksha1;
+extern uint ventilogging;
 
 extern char *VtServerLog;
 

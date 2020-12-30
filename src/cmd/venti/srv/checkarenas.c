@@ -80,7 +80,7 @@ threadmain(int argc, char *argv[])
 	ArenaPart *ap;
 	Part *part;
 	char *file;
-	int i, fix, scan;
+	u32int i, fix, scan;
 
 	ventifmtinstall();
 	statsinit();

@@ -71,7 +71,8 @@ runconfig(char *file, Config *config)
 	ISect **sv;
 	IFile f;
 	char *s, *line, *flds[MaxArgs + 1];
-	int i, ok;
+	u32int i;
+	int ok;
 
 	if(readifile(&f, file) < 0)
 		return -1;

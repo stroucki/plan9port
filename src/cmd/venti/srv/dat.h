@@ -131,7 +131,7 @@ enum
 	ISectSize2		= ISectSize1 + U32Size,
 	ClumpInfoSize		= U8Size + 2 * U16Size + VtScoreSize,
 	ClumpSize		= ClumpInfoSize + U8Size + 3 * U32Size,
-	MaxBloomSize		= 1<<(32-3),	/* 2^32 bits */
+	MaxBloomSize		= 1UL<<(35-3),	/* 2^32 bits */
 	MaxBloomHash	= 32,		/* bits per score */
 	/*
 	 * BUG - The various block copies that manipulate entry buckets
@@ -176,15 +176,15 @@ extern char TraceRpc[];
 struct Config
 {
 	char		*index;			/* name of the index to initialize */
-	int		naparts;		/* arena partitions initialized */
+	u32int		naparts;		/* arena partitions initialized */
 	ArenaPart	**aparts;
-	int		nsects;			/* index sections initialized */
+	u32int		nsects;			/* index sections initialized */
 	ISect		**sects;
 	Bloom	*bloom;		/* bloom filter */
-	u32int	bcmem;
-	u32int	mem;
-	u32int	icmem;
-	int		queuewrites;
+	ulong	bcmem;
+	ulong	mem;
+	ulong	icmem;
+	uint		queuewrites;
 	char*	haddr;
 	char*	vaddr;
 	char*	webroot;
@@ -301,7 +301,7 @@ struct ArenaPart
 	 * stored in the arena mapping table on disk
 	 */
 	AMap		*map;
-	int		narenas;
+	u32int		narenas;
 };
 
 /*
@@ -310,7 +310,7 @@ struct ArenaPart
 struct CIBlock
 {
 	u32int		block;			/* blocks in the directory */
-	int		offset;			/* offsets of one clump in the data */
+	u32int		offset;			/* offsets of one clump in the data */
 	DBlock		*data;
 };
 
@@ -363,7 +363,7 @@ struct Arena
 {
 	QLock		lock;			/* lock for arena fields, writing to disk */
 	Part		*part;			/* partition in which arena lives */
-	int		blocksize;		/* size of block to read or write */
+	u32int		blocksize;		/* size of block to read or write */
 	u64int		base;			/* base address on disk */
 	u64int		size;			/* total space in the arena */
 	u8int		score[VtScoreSize];	/* score of the entire sealed & summed arena */
@@ -469,9 +469,9 @@ struct Index
 	 */
 	u32int		version;
 	char		name[ANameSize];	/* text label */
-	int		nsects;
+	u32int		nsects;
 	AMap		*smap;			/* mapping of buckets to index sections */
-	int		narenas;
+	u32int		narenas;
 	AMap		*amap;			/* mapping from index addesses to arenas */
 	
 	QLock	writing;
@@ -485,8 +485,8 @@ struct Index
 struct ISect
 {
 	Part		*part;
-	int		blocklog;		/* log2(blocksize) */
-	int		buckmax;		/* max. entries in a index bucket */
+	u32int		blocklog;		/* log2(blocksize) */
+	u32int		buckmax;		/* max. entries in a index bucket */
 	u32int		tabbase;		/* base address of index config table on disk */
 	u32int		tabsize;		/* max. bytes in index config */
 	Channel	*writechan;
@@ -557,8 +557,8 @@ struct IBucket
  */
 struct ZBlock
 {
-	u32int		len;
-	u32int		_size;
+	u64int		len;
+	u64int		_size;
 	u8int		*data;
 	u8int		*free;
 };
@@ -722,9 +722,9 @@ struct Bloom
 {
 	RWLock lk;		/* protects nhash, nbits, tab, mb */
 	QLock mod;		/* one marker at a time, protects nb */
-	int nhash;
-	ulong size;		/* bytes in tab */
-	ulong bitmask;		/* to produce bit index */
+	long nhash;
+	uvlong size;		/* bytes in tab */
+	uvlong bitmask;		/* to produce bit index */
 	u8int *data;
 	Part *part;
 	Channel *writechan;
@@ -734,24 +734,24 @@ struct Bloom
 extern	Index		*mainindex;
 extern	u32int		maxblocksize;		/* max. block size used by any partition */
 extern	int		paranoid;		/* should verify hashes on disk read */
-extern	int		queuewrites;		/* put all lump writes on a queue and finish later */
+extern	uint		queuewrites;		/* put all lump writes on a queue and finish later */
 extern	int		readonly;		/* only allowed to read the disk data */
 extern	Stats		stats;
 extern	u8int		zeroscore[VtScoreSize];
-extern	int		compressblocks;
-extern	int		writestodevnull;	/* dangerous - for performance debugging */
-extern	int		bootstrap;		/* writes but does not index - cannot read */
-extern	int		collectstats;
+extern	uint		compressblocks;
+extern	uint		writestodevnull;	/* dangerous - for performance debugging */
+extern	uint		bootstrap;		/* writes but does not index - cannot read */
+extern	uint		collectstats;
 extern	QLock	memdrawlock;
-extern	int		icachesleeptime;
-extern	int		minicachesleeptime;
-extern	int		arenasumsleeptime;
-extern	int		manualscheduling;
-extern	int		l0quantum;
-extern	int		l1quantum;
-extern	int		ignorebloom;
-extern	int		icacheprefetch;
-extern	int		syncwrites;
+extern	u32int		icachesleeptime;
+extern	u32int		minicachesleeptime;
+extern	u32int		arenasumsleeptime;
+extern	uint		manualscheduling;
+extern	uint		l0quantum;
+extern	uint		l1quantum;
+extern	uint		ignorebloom;
+extern	uint		icacheprefetch;
+extern	uint		syncwrites;
 extern	int		debugarena; /* print in arena error msgs; -1==unknown */
 
 extern	Stats	*stathist;

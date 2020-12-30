@@ -105,7 +105,7 @@ queuewrite(Lump *u, Packet *p, int creator, uint ms)
 void
 flushqueue(void)
 {
-	int i;
+	u32int i;
 	LumpQueue *q;
 
 	if(!lumpqs)

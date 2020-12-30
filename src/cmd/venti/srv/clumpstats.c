@@ -54,7 +54,7 @@ clumpstats(Index *ix)
 {
 	int ok;
 	ulong clumps, n;
-	int i, j, t;
+	u32int i, j, t;
 
 	ok = 0;
 	clumps = 0;

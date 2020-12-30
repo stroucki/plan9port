@@ -32,7 +32,8 @@ typedef struct DCache	DCache;
 
 enum
 {
-	HashLog		= 9,
+	HashLog		= 18, // icache has this ceil(log2(entries))
+	//HashLog		= 9,
 	HashSize	= 1<<HashLog,
 	HashMask	= HashSize - 1,
 };
@@ -45,16 +46,16 @@ struct DCache
 	Round		round;
 	DBlock		*free;			/* list of available lumps */
 	u32int		now;			/* ticks for usage timestamps */
-	int		size;			/* max. size of any block; allocated to each block */
+	u32int		size;			/* max. size of any block; allocated to each block */
 	DBlock		**heads;		/* hash table for finding address */
-	int		nheap;			/* number of available victims */
+	u32int		nheap;			/* number of available victims */
 	DBlock		**heap;			/* heap for locating victims */
-	int		nblocks;		/* number of blocks allocated */
+	u32int		nblocks;		/* number of blocks allocated */
 	DBlock		*blocks;		/* array of block descriptors */
 	DBlock		**write;		/* array of block pointers to be written */
 	u8int		*mem;			/* memory for all block descriptors */
-	int		ndirty;			/* number of dirty blocks */
-	int		maxdirty;		/* max. number of dirty blocks */
+	u32int		ndirty;			/* number of dirty blocks */
+	u32int		maxdirty;		/* max. number of dirty blocks */
 };
 
 typedef struct Ra Ra;
@@ -75,11 +76,11 @@ static void	flushproc(void*);
 static void	writeproc(void*);
 
 void
-initdcache(u32int mem)
+initdcache(ulong mem)
 {
 	DBlock *b, *last;
 	u32int nblocks, blocksize;
-	int i;
+	u32int i;
 	u8int *p;
 
 	if(mem < maxblocksize * 2)
@@ -87,7 +88,7 @@ initdcache(u32int mem)
 	if(maxblocksize == 0)
 		sysfatal("no max. block size given for disk cache");
 	blocksize = maxblocksize;
-	nblocks = mem / blocksize;
+	nblocks = (u32int)(mem / blocksize);
 	dcache.full.l = &dcache.lock;
 	dcache.nblocks = nblocks;
 	dcache.maxdirty = (nblocks * 2) / 3;
@@ -126,7 +127,7 @@ pbhash(u64int addr)
 	u32int h;
 
 #define hashit(c)	((((c) * 0x6b43a9b5) >> (32 - HashLog)) & HashMask)
-	h = (addr >> 32) ^ addr;
+	h = (u32int)((addr >> 32) ^ addr);
 	return hashit(h);
 }
 
@@ -352,7 +353,7 @@ putdblock(DBlock *b)
 }
 
 void
-dirtydblock(DBlock *b, int dirty)
+dirtydblock(DBlock *b, u32int dirty)
 {
 	int odirty;
 
@@ -506,7 +507,7 @@ downheap(int i, DBlock *b)
 {
 	DBlock *bb;
 	u32int now;
-	int k;
+	u32int k;
 
 	now = dcache.now;
 	for(; ; i = k){
@@ -531,7 +532,7 @@ static void
 findblock(DBlock *bb)
 {
 	DBlock *b, *last;
-	int h;
+	u32int h;
 
 	last = nil;
 	h = pbhash(bb->addr);
@@ -550,7 +551,7 @@ checkdcache(void)
 {
 	DBlock *b;
 	u32int size, now;
-	int i, k, refed, nfree;
+	u32int i, k, refed, nfree;
 
 	qlock(&dcache.lock);
 	size = dcache.size;
@@ -608,8 +609,8 @@ kickdcache(void)
 	kickround(&dcache.round, 0);
 }
 
-static int
-parallelwrites(DBlock **b, DBlock **eb, int dirty)
+static long
+parallelwrites(DBlock **b, DBlock **eb, u32int dirty)
 {
 	DBlock **p, **q;
 	Part *part;
@@ -665,7 +666,7 @@ writeblockcmp(const void *va, const void *vb)
 static void
 flushproc(void *v)
 {
-	int i, j, n;
+	u32int i, j, n;
 	ulong t0;
 	DBlock *b, **write;
 

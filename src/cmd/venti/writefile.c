@@ -21,7 +21,7 @@ usage(void)
 void
 threadmain(int argc, char *argv[])
 {
-	int n;
+	long n;
 	uchar score[VtScoreSize];
 	uchar *buf;
 	char *host;

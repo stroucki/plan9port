@@ -13,7 +13,7 @@ struct ASum
 static void	sealarena(Arena *arena);
 static int	okarena(Arena *arena);
 static int	loadarena(Arena *arena);
-static CIBlock	*getcib(Arena *arena, int clump, int writing, CIBlock *rock);
+static CIBlock	*getcib(Arena *arena, u32int clump, int writing, CIBlock *rock);
 static void	putcib(Arena *arena, CIBlock *cib);
 static void	sumproc(void *);
 static void loadcig(Arena *arena);
@@ -24,7 +24,7 @@ static ASum	*sumq;
 static ASum	*sumqtail;
 static uchar zero[8192];
 
-int	arenasumsleeptime;
+u32int	arenasumsleeptime;
 
 int
 initarenasum(void)
@@ -84,7 +84,7 @@ freearena(Arena *arena)
 Arena*
 newarena(Part *part, u32int vers, char *name, u64int base, u64int size, u32int blocksize)
 {
-	int bsize;
+	u32int bsize;
 	Arena *arena;
 
 	if(nameok(name) < 0){
@@ -122,7 +122,7 @@ newarena(Part *part, u32int vers, char *name, u64int base, u64int size, u32int b
 }
 
 int
-readclumpinfo(Arena *arena, int clump, ClumpInfo *ci)
+readclumpinfo(Arena *arena, u32int clump, ClumpInfo *ci)
 {
 	CIBlock *cib, r;
 
@@ -135,7 +135,7 @@ readclumpinfo(Arena *arena, int clump, ClumpInfo *ci)
 }
 
 int
-readclumpinfos(Arena *arena, int clump, ClumpInfo *cis, int n)
+readclumpinfos(Arena *arena, u32int clump, ClumpInfo *cis, int n)
 {
 	CIBlock *cib, r;
 	int i;
@@ -164,7 +164,7 @@ readclumpinfos(Arena *arena, int clump, ClumpInfo *cis, int n)
  * must be called the arena locked
  */
 int
-writeclumpinfo(Arena *arena, int clump, ClumpInfo *ci)
+writeclumpinfo(Arena *arena, u32int clump, ClumpInfo *ci)
 {
 	CIBlock *cib, r;
 
@@ -188,13 +188,13 @@ arenadirsize(Arena *arena, u32int clumps)
  * n is a hint of the size of the data, not including the header
  * make sure it won't run off the end, then return the number of bytes actually read
  */
-u32int
-readarena(Arena *arena, u64int aa, u8int *buf, long n)
+long
+readarena(Arena *arena, u64int aa, u8int *buf, u64int n)
 {
 	DBlock *b;
 	u64int a;
-	u32int blocksize, off, m;
-	long nn;
+	u64int blocksize, off, m;
+	u64int nn;
 
 	if(n == 0)
 		return -1;
@@ -242,7 +242,7 @@ writearena(Arena *arena, u64int aa, u8int *clbuf, u32int n)
 	DBlock *b;
 	u64int a;
 	u32int blocksize, off, m;
-	long nn;
+	u32int nn;
 	int ok;
 
 	if(n == 0)
@@ -427,7 +427,7 @@ atailcmp(ATailStats *a, ATailStats *b)
 void
 setatailstate(AState *as)
 {
-	int i, j, osealed;
+	u32int i, j, osealed;
 	Arena *a;
 	Index *ix;
 
@@ -738,7 +738,7 @@ okarena(Arena *arena)
 }
 
 static CIBlock*
-getcib(Arena *arena, int clump, int writing, CIBlock *rock)
+getcib(Arena *arena, u32int clump, int writing, CIBlock *rock)
 {
 	int mode;
 	CIBlock *cib;
@@ -888,10 +888,10 @@ arenatog(Arena *arena, u64int addr, u64int *gstart, u64int *glimit, int *g)
 /*
  * load the clump info for group g into the index entries.
  */
-int
+u32int
 asumload(Arena *arena, int g, IEntry *entries, int nentries)
 {
-	int i, base, limit;
+	u64int i, base, limit;
 	u64int addr;
 	ClumpInfo ci;
 	IEntry *ie;

@@ -167,7 +167,8 @@ int
 checkbloom(Bloom *b1, Bloom *b2, int fix)
 {
 	u32int *a1, *a2;
-	int i, n, extra, missing;
+	u32int i, extra, missing;
+	u64int n;
 
 	if(b1==nil && b2==nil)
 		return 0;

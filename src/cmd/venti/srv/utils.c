@@ -130,6 +130,7 @@ logerr(int severity, char *fmt, ...)
 	free(s);
 }
 
+// year 2036
 u32int
 now(void)
 {
@@ -190,7 +191,7 @@ char *
 estrdup(char *s)
 {
 	char *t;
-	int n;
+	u64int n;
 
 	n = strlen(s) + 1;
 	t = emalloc(n);

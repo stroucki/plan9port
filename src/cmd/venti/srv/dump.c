@@ -5,7 +5,7 @@
 void
 printindex(int fd, Index *ix)
 {
-	int i;
+	u32int i;
 
 	fprint(fd, "index=%s version=%d blocksize=%d tabsize=%d\n",
 		ix->name, ix->version, ix->blocksize, ix->tabsize);
@@ -19,7 +19,7 @@ printindex(int fd, Index *ix)
 void
 printarenapart(int fd, ArenaPart *ap)
 {
-	int i;
+	u32int i;
 
 	fprint(fd, "arena partition=%s\n\tversion=%d blocksize=%d arenas=%d\n\tsetbase=%d setsize=%d\n",
 		ap->part->name, ap->version, ap->blocksize, ap->narenas, ap->tabbase, ap->tabsize);

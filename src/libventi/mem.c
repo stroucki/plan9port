@@ -17,7 +17,7 @@ vtfree(void *p)
 }
 
 void *
-vtmalloc(int size)
+vtmalloc(ulong size)
 {
 	void *p;
 
@@ -29,7 +29,7 @@ vtmalloc(int size)
 }
 
 void *
-vtmallocz(int size)
+vtmallocz(ulong size)
 {
 	void *p = vtmalloc(size);
 	memset(p, 0, size);
@@ -38,7 +38,7 @@ vtmallocz(int size)
 }
 
 void *
-vtrealloc(void *p, int size)
+vtrealloc(void *p, ulong size)
 {
 	if(p == nil)
 		return vtmalloc(size);
@@ -50,12 +50,12 @@ vtrealloc(void *p, int size)
 }
 
 void *
-vtbrk(int n)
+vtbrk(ulong n)
 {
 	static Lock lk;
 	static uchar *buf;
-	static int nbuf, nchunk;
-	int align, pad;
+	static ulong nbuf, nchunk;
+	ulong align, pad;
 	void *p;
 
 	if(n >= IdealAlignment)

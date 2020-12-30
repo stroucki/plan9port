@@ -11,8 +11,8 @@ static void icachewriteproc(void*);
 static void icachewritecoord(void*);
 static IEntry *iesort(IEntry*);
 
-int icachesleeptime = 1000;	/* milliseconds */
-int minicachesleeptime = 0;
+u32int icachesleeptime = 1000;	/* milliseconds */
+u32int minicachesleeptime = 0;
 
 enum
 {
@@ -31,7 +31,7 @@ static IWrite iwrite;
 void
 initicachewrite(void)
 {
-	int i;
+	u32int i;
 	Index *ix;
 
 	initround(&iwrite.round, "icache", 120*60*1000);
@@ -56,10 +56,10 @@ ie2diskaddr(Index *ix, ISect *is, IEntry *ie)
 }
 
 static IEntry*
-nextchunk(Index *ix, ISect *is, IEntry **pie, u64int *paddr, uint *pnbuf)
+nextchunk(Index *ix, ISect *is, IEntry **pie, u64int *paddr, u64int *pnbuf)
 {
 	u64int addr, naddr;
-	uint nbuf;
+	u64int nbuf;
 	int bsize;
 	IEntry *iefirst, *ie, **l;
 
@@ -85,10 +85,11 @@ nextchunk(Index *ix, ISect *is, IEntry **pie, u64int *paddr, uint *pnbuf)
 static int
 icachewritesect(Index *ix, ISect *is, u8int *buf)
 {
-	int err, i, werr, h, bsize, t;
+	u32int i, bsize, h, t;
+        int err, werr;
 	u32int lo, hi;
 	u64int addr, naddr;
-	uint nbuf, off;
+	u64int nbuf, off;
 	DBlock *b;
 	IBucket ib;
 	IEntry *ie, *iedirty, **l, *chunk;
@@ -233,7 +234,8 @@ icachewriteproc(void *v)
 static void
 icachewritecoord(void *v)
 {
-	int i, err;
+	u32int i;
+	int err;
 	Index *ix;
 	AState as;
 

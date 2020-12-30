@@ -3,7 +3,7 @@
 #include <venti.h>
 
 // XXXstroucki cost 19.53% in vcat
-int ventidoublechecksha1 = 0;
+uint ventidoublechecksha1 = 0;
 
 static int
 vtfcallrpc(VtConn *z, VtFcall *ou, VtFcall *in)

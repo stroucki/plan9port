@@ -2,7 +2,7 @@
 #include "dat.h"
 #include "fns.h"
 
-int collectstats = 1;
+uint collectstats = 1;
 
 /* keep in sync with dat.h:/NStat */
 Statdesc statdesc[NStat] =
@@ -117,7 +117,7 @@ statsinit(void)
 }
 
 void
-setstat(int index, long val)
+setstat(uint index, long val)
 {
 	qlock(&statslock);
 	stats.n[index] = val;
@@ -125,7 +125,7 @@ setstat(int index, long val)
 }
 
 void
-addstat(int index, int inc)
+addstat(uint index, long inc)
 {
 	if(!collectstats)
 		return;
@@ -135,7 +135,7 @@ addstat(int index, int inc)
 }
 
 void
-addstat2(int index, int inc, int index1, int inc1)
+addstat2(uint index, long inc, uint index1, long inc1)
 {
 	if(!collectstats)
 		return;

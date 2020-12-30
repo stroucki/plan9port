@@ -25,7 +25,7 @@ void xmlarena(Hio *hout, Arena *s, char *tag, int indent){
 }
 
 void xmlindex(Hio *hout, Index *s, char *tag, int indent){
-	int i;
+	u32int i;
 	xmlindent(hout, indent);
 	hprint(hout, "<%s", tag);
 	xmlaname(hout, s->name, "name");

@@ -3,15 +3,15 @@
 #include "fns.h"
 
 ulong lasttime[2];
-int manualscheduling;
-int l0quantum = 120;
-int l1quantum = 120;
+uint manualscheduling;
+uint l0quantum = 120;
+uint l1quantum = 120;
 ulong lasticachechange;
 
 void
 disksched(void)
 {
-	int p, nwrite, nflush, ndirty, tdirty, toflush;
+	long p, nwrite, nflush, ndirty, tdirty, toflush;
 	ulong t;
 	vlong cflush;
 	Stats *prev;

@@ -16,8 +16,8 @@ threadmain(int argc, char *argv[])
 {
 	Part *part;
 	char *file;
-	vlong bits, size, size2;
-	int nhash;
+	uvlong bits, size, size2;
+	long nhash;
 	vlong nblocks;
 	
 	ventifmtinstall();
@@ -43,7 +43,7 @@ threadmain(int argc, char *argv[])
 		break;
 	case 's':
 		size = unittoull(ARGF());
-		if(size == ~0)
+		if(size == ~(0UL))
 			usage();
 		break;
 	default:
@@ -68,7 +68,7 @@ threadmain(int argc, char *argv[])
 
 	if(size > MaxBloomSize){
 		fprint(2, "warning: not using entire %,lld bytes; using only %,lld bytes\n",
-			size, (vlong)MaxBloomSize);
+			size, (uvlong)MaxBloomSize);
 		size = MaxBloomSize;
 	}
 	if(size&(size-1)){
