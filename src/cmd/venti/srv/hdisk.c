@@ -48,7 +48,7 @@ hdisk(HConnect *c)
 static int
 disksummary(HConnect *c)
 {
-	int i;
+	u32int i;
 	Index *ix;
 	Part *p;
 	
@@ -528,7 +528,7 @@ diskisect(HConnect *c, char *disk, Part *p)
 static void
 debugamap(HConnect *c)
 {
-	int i;
+	u32int i;
 	AMap *amap;
 
 	hprint(&c->hout, "<h2>arena map</h2>\n");
@@ -547,7 +547,7 @@ debugread(HConnect *c, u8int *score)
 	Lump *u;
 	IAddr ia;
 	IEntry ie;
-	int i;
+	u32int i;
 	Arena *arena;
 	u64int aa;
 	ZBlock *zb;

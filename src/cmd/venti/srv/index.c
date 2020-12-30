@@ -37,7 +37,7 @@ initindex(char *name, ISect **sects, int n)
 	Index *ix;
 	ISect *is;
 	u32int last, blocksize, tabsize;
-	int i;
+	u32int i;
 
 	if(n <= 0){
 fprint(2, "bad n\n");
@@ -152,7 +152,7 @@ wbindex(Index *ix)
 {
 	Fmt f;
 	ZBlock *b;
-	int i;
+	u32int i;
 
 	if(ix->nsects == 0){
 		seterr(EOk, "no sections in index %s", ix->name);
@@ -269,8 +269,8 @@ newindex(char *name, ISect **sects, int n)
 {
 	Index *ix;
 	AMap *smap;
-	u64int nb;
-	u32int div, ub, xb, start, stop, blocksize, tabsize;
+	u64int nb, xb, ub;
+	u64int div, start, stop, blocksize, tabsize;
 	int i, j;
 
 	if(n < 1){
@@ -557,7 +557,7 @@ freeisect(ISect *is)
 void
 freeindex(Index *ix)
 {
-	int i;
+	u32int i;
 
 	if(ix == nil)
 		return;
@@ -581,7 +581,7 @@ u64int
 writeiclump(Index *ix, Clump *c, u8int *clbuf)
 {
 	u64int a;
-	int i;
+	u32int i;
 	IAddr ia;
 	AState as;
 
@@ -617,7 +617,7 @@ writeiclump(Index *ix, Clump *c, u8int *clbuf)
 Arena*
 amapitoa(Index *ix, u64int a, u64int *aa)
 {
-	int i, r, l, m;
+	u32int i, r, l, m;
 
 	l = 1;
 	r = ix->narenas - 1;

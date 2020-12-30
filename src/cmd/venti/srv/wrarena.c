@@ -60,7 +60,7 @@ vtsendthread(void *v)
 static void
 rdarena(Arena *arena, u64int offset)
 {
-	int i;
+	u32int i;
 	u64int a, aa, e;
 	uchar score[VtScoreSize];
 	Clump cl;
@@ -128,7 +128,7 @@ rdarena(Arena *arena, u64int offset)
 void
 threadmain(int argc, char *argv[])
 {
-	int i;
+	u32int i;
 	char *file;
 	Arena *arena;
 	ArenaPart *ap;

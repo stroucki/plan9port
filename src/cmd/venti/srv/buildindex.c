@@ -28,7 +28,7 @@ struct ScoreBuf
 int		dumb;
 int		errors;
 char		**isect;
-int		nisect;
+u32int		nisect;
 int		bloom;
 int		zero;
 
@@ -57,7 +57,8 @@ usage(void)
 void
 threadmain(int argc, char *argv[])
 {
-	int fd, i, napart, nfinish, maxdisks;
+	int fd, napart, nfinish, maxdisks;
+	u32int i;
 	u32int bcmem, imem;
 	Config conf;
 	Part *p;
@@ -230,7 +231,8 @@ enum
 static void
 arenapartproc(void *v)
 {
-	int i, j, n, nskip, x;
+	u32int i, n, nskip, x;
+	int j;
 	u32int clump;
 	u64int addr, tot;
 	Arena *a;
@@ -698,7 +700,7 @@ static void
 zerorange(Part *p, u64int o, u64int e)
 {
 	static uchar zero[MaxIoSize];
-	u32int n;
+	u64int n;
 	
 	for(; o<e; o+=n){
 		n = sizeof zero;

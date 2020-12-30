@@ -27,7 +27,7 @@ void
 threadmain(int argc, char *argv[])
 {
 	char *configfile, *haddr, *vaddr, *webroot;
-	u32int mem, icmem, bcmem, minbcmem;
+	ulong mem, icmem, bcmem, minbcmem;
 	Config config;
 
 	traceinit();

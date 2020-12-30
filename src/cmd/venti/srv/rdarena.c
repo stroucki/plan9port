@@ -47,7 +47,7 @@ threadmain(int argc, char *argv[])
 	ArenaPart *ap;
 	Part *part;
 	char *file, *aname;
-	int i;
+	u32int i;
 
 	ventifmtinstall();
 	statsinit();

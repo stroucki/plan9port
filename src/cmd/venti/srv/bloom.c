@@ -7,15 +7,15 @@
 #include "dat.h"
 #include "fns.h"
 
-int ignorebloom;
+uint ignorebloom;
 
 int
-bloominit(Bloom *b, vlong vsize, u8int *data)
+bloominit(Bloom *b, uvlong vsize, u8int *data)
 {
-	ulong size;
+	u64int size;
 	
 	size = vsize;
-	if(size != vsize){	/* truncation */
+	if(size > MaxBloomSize){	/* truncation */
 		werrstr("bloom data too big");
 		return -1;
 	}
@@ -78,17 +78,21 @@ resetbloom(Bloom *b)
 	
 	data = vtmallocz(b->size);
 	b->data = data;
+/*
 	if(b->size == MaxBloomSize)	/* 2^32 overflows ulong */
+/*
 		addstat(StatBloomBits, b->size*8-1);
 	else
 		addstat(StatBloomBits, b->size*8);
+*/
+	addstat(StatBloomBits, b->size*8);
 	return 0;
 }
 
 int
 loadbloom(Bloom *b)
 {
-	int i, n;
+	u64int i, n;
 	uint ones;
 	uchar *data;
 	u32int *a;
@@ -128,25 +132,32 @@ writebloom(Bloom *b)
 }
 
 /*
- * Derive two random 32-bit quantities a, b from the score
+ * Derive two random 64-bit quantities a, b from the score
  * and then use a+b*i as a sequence of bloom filter indices.
  * Michael Mitzenmacher has a recent (2005) paper saying this is okay.
  * We reserve the bottom bytes (BloomHeadSize*8 bits) for the header.
  */
 static void
-gethashes(u8int *score, ulong *h)
+gethashes(u8int *score, uvlong *h)
 {
 	int i;
-	u32int a, b;
+	u64int a, b;
 
 	a = 0;
 	b = 0;
+        // XXXstroucki 64 bit extension: VtScoreSize=20
+        // reinit bloom filter if switching to this code
+	a = *(u64int*)(score+4);
+        b = *(u64int*)(score+12);
+/*
 	for(i=4; i+8<=VtScoreSize; i+=8){
 		a ^= *(u32int*)(score+i);
 		b ^= *(u32int*)(score+i+4);
 	}
 	if(i+4 <= VtScoreSize)	/* 20 is not 4-aligned */
+/*
 		a ^= *(u32int*)(score+i);
+*/
 	for(i=0; i<BloomMaxHash; i++, a+=b)
 		h[i] = a < BloomHeadSize*8 ? BloomHeadSize*8 : a;
 }
@@ -155,8 +166,9 @@ static void
 _markbloomfilter(Bloom *b, u8int *score)
 {
 	int i, nnew;
-	ulong h[BloomMaxHash];
-	u32int x, *y, z, *tab;
+	uvlong h[BloomMaxHash];
+	u64int x;
+	u32int *y, z, *tab;
 
 	trace("markbloomfilter", "markbloomfilter %V", score);
 	gethashes(score, h);
@@ -181,7 +193,8 @@ static int
 _inbloomfilter(Bloom *b, u8int *score)
 {
 	int i;
-	ulong h[BloomMaxHash], x;
+	u64int x;
+	uvlong h[BloomMaxHash];
 	u32int *tab;
 
 	gethashes(score, h);

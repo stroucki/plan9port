@@ -51,7 +51,8 @@ int
 syncindex(Index *ix)
 {
 	Arena *arena;
-	int i, e, e1, ok;
+	u32int i, e, e1;
+	int ok;
 
 	ok = 0;
 	for(i = 0; i < ix->narenas; i++){

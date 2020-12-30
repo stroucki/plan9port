@@ -481,7 +481,7 @@ mirror(int indx, Arena *sa, Arena *da)
 void
 mirrormany(ArenaPart *sp, ArenaPart *dp, char *range)
 {
-	int i, lo, hi;
+	u32int i, lo, hi;
 	char *s, *t;
 	Arena *sa, *da;
 
@@ -532,7 +532,7 @@ mirrormany(ArenaPart *sp, ArenaPart *dp, char *range)
 void
 threadmain(int argc, char **argv)
 {
-	int i;
+	u32int i;
 	Arena *sa, *da;
 	ArenaPart *s, *d;
 	char *ranges;

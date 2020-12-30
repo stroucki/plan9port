@@ -15,7 +15,7 @@ storeclump(Index *ix, ZBlock *zb, u8int *sc, int type, u32int creator, IAddr *ia
 	Clump cl;
 	u64int a;
 	u8int bh[VtScoreSize];
-	int size, dsize;
+	s64int size, dsize;
 
 	trace(TraceLump, "storeclump enter", sc, type);
 	size = zb->len;
@@ -106,7 +106,7 @@ loadclump(Arena *arena, u64int aa, int blocks, Clump *cl, u8int *score, int veri
 	Unwhack uw;
 	ZBlock *zb, *cb;
 	u8int bh[VtScoreSize], *buf;
-	u32int n;
+	long n;
 	int nunc;
 
 /*

@@ -2,7 +2,7 @@
 #include <libc.h>
 #include <venti.h>
 
-int ventilogging;
+uint ventilogging;
 #define log	not_the_log_library_call
 
 static char Eremoved[] = "[removed]";

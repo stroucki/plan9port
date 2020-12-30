@@ -2,11 +2,11 @@
 #include "dat.h"
 #include "fns.h"
 
-int			bootstrap = 0;
-int			syncwrites = 0;
-int			queuewrites = 0;
-int			writestodevnull = 0;
-int			verifywrites = 0;
+uint			bootstrap = 0;
+uint			syncwrites = 0;
+uint			queuewrites = 0;
+uint			writestodevnull = 0;
+uint			verifywrites = 0;
 
 static Packet		*readilump(Lump *u, IAddr *ia, u8int *score);
 

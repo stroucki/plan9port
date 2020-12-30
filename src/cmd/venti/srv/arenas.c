@@ -240,7 +240,7 @@ wbarenapart(ArenaPart *ap)
 void
 freearenapart(ArenaPart *ap, int freearenas)
 {
-	int i;
+	u32int i;
 
 	if(ap == nil)
 		return;
@@ -258,7 +258,7 @@ freearenapart(ArenaPart *ap, int freearenas)
 }
 
 int
-okamap(AMap *am, int n, u64int start, u64int stop, char *what)
+okamap(AMap *am, u32int n, u64int start, u64int stop, char *what)
 {
 	u64int last;
 	u32int i;
@@ -286,7 +286,7 @@ okamap(AMap *am, int n, u64int start, u64int stop, char *what)
 }
 
 int
-maparenas(AMap *am, Arena **arenas, int n, char *what)
+maparenas(AMap *am, Arena **arenas, u32int n, char *what)
 {
 	u32int i;
 

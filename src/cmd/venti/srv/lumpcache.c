@@ -9,7 +9,7 @@ typedef struct LumpCache	LumpCache;
 
 enum
 {
-	HashLog		= 9,
+	HashLog		= 9, // icache has this ceil(log(entries))
 	HashSize	= 1<<HashLog,
 	HashMask	= HashSize - 1,
 };
@@ -19,13 +19,13 @@ struct LumpCache
 	QLock		lock;
 	Rendez		full;
 	Lump		*free;			/* list of available lumps */
-	u32int		allowed;		/* total allowable space for packets */
-	u32int		avail;			/* remaining space for packets */
+	ulong		allowed;		/* total allowable space for packets */
+	ulong		avail;			/* remaining space for packets */
 	u32int		now;			/* ticks for usage timestamps */
 	Lump		**heads;		/* hash table for finding address */
-	int		nheap;			/* number of available victims */
+	u32int		nheap;			/* number of available victims */
 	Lump		**heap;			/* heap for locating victims */
-	int		nblocks;		/* number of blocks allocated */
+	u32int		nblocks;		/* number of blocks allocated */
 	Lump		*blocks;		/* array of block descriptors */
 };
 
@@ -38,10 +38,10 @@ static int	upheap(int i, Lump *b);
 static Lump	*bumplump(void);
 
 void
-initlumpcache(u32int size, u32int nblocks)
+initlumpcache(ulong size, u32int nblocks)
 {
 	Lump *last, *b;
-	int i;
+	u32int i;
 
 	lumpcache.full.l = &lumpcache.lock;
 	lumpcache.nblocks = nblocks;
@@ -335,7 +335,7 @@ downheap(int i, Lump *b)
 {
 	Lump *bb;
 	u32int now;
-	int k;
+	u32int k;
 
 	now = lumpcache.now;
 	for(; ; i = k){
@@ -379,7 +379,7 @@ checklumpcache(void)
 {
 	Lump *b;
 	u32int size, now, nfree;
-	int i, k, refed;
+	u32int i, k, refed;
 
 	now = lumpcache.now;
 	for(i = 0; i < lumpcache.nheap; i++){

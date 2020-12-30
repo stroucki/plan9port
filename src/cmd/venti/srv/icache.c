@@ -2,7 +2,7 @@
 #include "dat.h"
 #include "fns.h"
 
-int icacheprefetch = 1;
+uint icacheprefetch = 1;
 
 typedef struct ICache ICache;
 typedef struct IHash IHash;
@@ -14,7 +14,7 @@ struct ICache
 	Rendez	full;
 	IHash	*hash;
 	IEntry	*entries;
-	int		nentries;
+	ulong	nentries;
 
 	/*
 	* gcc 4.3 inlines the pushfirst loop in initicache,
@@ -30,15 +30,15 @@ struct ICache
 
 	IEntry	clean;
 	IEntry	dirty;
-	u32int	maxdirty;
-	u32int	ndirty;
+	ulong	maxdirty;
+	ulong	ndirty;
 	AState	as;
 
 	ISum	**sum;
-	int		nsum;
+	ulong		nsum;
 	IHash	*shash;
 	IEntry	*sentries;
-	int		nsentries;
+	ulong		nsentries;
 };
 
 static ICache icache;
@@ -49,16 +49,16 @@ static ICache icache;
 
 struct IHash
 {
-	int bits;
-	u32int size;
+	u32int bits;
+	ulong size;
 	IEntry **table;
 };
 
 static IHash*
-mkihash(int size1)
+mkihash(ulong size1)
 {
-	u32int size;
-	int bits;
+	ulong size;
+	u32int bits;
 	IHash *ih;
 	
 	bits = 0;
@@ -167,7 +167,7 @@ struct ISum
 static ISum*
 scachelookup(u64int addr)
 {
-	int i;
+	ulong i;
 	ISum *s;
 
 	for(i=0; i<icache.nsum; i++){
@@ -202,7 +202,7 @@ static ISum*
 scacheevict(void)
 {
 	ISum *s;
-	int i;
+	s64int i;
 	
 	for(i=icache.nsum-1; i>=0; i--){
 		s = icache.sum[i];
@@ -239,7 +239,7 @@ scachesetup(ISum *s, u64int addr)
 static void
 scacheload(ISum *s)
 {
-	int i, n;
+	u32int i, n;
 
 	s->loaded = 1;
 	n = asumload(s->arena, s->g, s->entries, ArenaCIGSize);
@@ -290,10 +290,10 @@ scachemiss(u64int addr)
  */
 
 void
-initicache(u32int mem0)
+initicache(ulong mem0)
 {
-	u32int mem;
-	int i, entries, scache;
+	u64int mem;
+	u64int i, entries, scache;
 	
 	icache.full.l = &icache.lock;
 
@@ -307,7 +307,7 @@ initicache(u32int mem0)
 		scache = 16;
 	if(entries < 1000)
 		entries = 1000;
-fprint(2, "icache %,d bytes = %,d entries; %d scache\n", mem0, entries, scache);
+fprint(2, "icache %,ulld bytes = %,ulld entries; %ulld scache\n", mem0, entries, scache);
 
 	icache.clean.prev = icache.clean.next = &icache.clean;
 	icache.dirty.prev = icache.dirty.next = &icache.dirty;
@@ -571,7 +571,7 @@ icacheclean(IEntry *ie)
 void
 emptyicache(void)
 {
-	int i;
+	ulong i;
 	IEntry *ie;
 	ISum *s;
 	

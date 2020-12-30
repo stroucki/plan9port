@@ -22,12 +22,12 @@ enum {
 static char zmagic[] = "1234567890abcdefghijklmnopqrstuvxyz";
 
 ZBlock *
-alloczblock(u32int size, int zeroed, uint blocksize)
+alloczblock(u64int size, int zeroed, u64int blocksize)
 {
 	uchar *p, *data;
 	ZBlock *b;
 	static ZBlock z;
-	int n;
+	u64int n;
 
 	if(blocksize == 0)
 		blocksize = 32;	/* try for cache line alignment */

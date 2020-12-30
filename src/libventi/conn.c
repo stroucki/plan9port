@@ -3,7 +3,7 @@
 #include <venti.h>
 #include "queue.h"
 
-int chattyventi;
+uint chattyventi;
 
 VtConn*
 vtconn(int infd, int outfd)

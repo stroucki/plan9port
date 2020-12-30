@@ -229,13 +229,14 @@ partblocksize(Part *part, u32int blocksize)
  * body of the loop: up to MaxIo bytes at a time.  If everything isn't aligned properly,
  * we work one block at a time.
  */
-int
-prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u32int blocksize)
+vlong
+prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u64int count, u32int blocksize)
 {
 	char *op;
 	u8int *buf, *freetmp, *dst;
-	u32int icount, opsize;
-	int r, count1;
+	u64int icount, opsize;
+	long r;
+        u64int count1;
 
 
 #ifndef PLAN9PORT
@@ -261,7 +262,7 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 	}
 	return icount;
 #else
-	u32int c, delta;
+	u64int c, delta;
 	u8int *tmp;
 
 	icount = count;
@@ -278,15 +279,15 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 	assert(blocksize > 0);
 
 	/* allocate blocksize-aligned temp buffer if needed */
-	if((ulong)offset%blocksize || (ulong)buf%blocksize || count%blocksize){
+	if(offset%blocksize || (u64int)buf%blocksize || count%blocksize){
 		if((freetmp = malloc(blocksize*2)) == nil)
 			return -1;
 		tmp = freetmp;
-		tmp += blocksize - (ulong)tmp%blocksize;
+		tmp += blocksize - (u64int)tmp%blocksize;
 	}
 
 	/* handle beginning fringe */
-	if((delta = (ulong)offset%blocksize) != 0){
+	if((delta = offset%blocksize) != 0){
 		assert(tmp != nil);
 		if((r=pread(fd, tmp, blocksize, offset-delta)) != blocksize){
 			dst = tmp;
@@ -317,8 +318,8 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 
 	/* handle full blocks */
 	while(count >= blocksize){
-		assert((ulong)offset%blocksize == 0);
-		if((ulong)buf%blocksize){
+		assert(offset%blocksize == 0);
+		if((u64int)buf%blocksize){
 			assert(tmp != nil);
 			dst = tmp;
 			opsize = blocksize;
@@ -359,7 +360,7 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 
 	/* handle ending fringe */
 	if(count > 0){
-		assert((ulong)offset%blocksize == 0);
+		assert(offset%blocksize == 0);
 		assert(tmp != nil);
 		/*
 		 * Complicated condition: if we're reading it's okay to get less than
@@ -406,16 +407,17 @@ static int reopen(Part*);
 static int threadspawnl(int[3], char*, char*, ...);
 #endif
 
-int
-rwpart(Part *part, int isread, u64int offset, u8int *buf, u32int count)
+vlong
+rwpart(Part *part, int isread, u64int offset, u8int *buf, u64int count)
 {
-	int n, try;
+	vlong n;
+	u32int try;
 	u32int blocksize;
 
 	trace(TraceDisk, "%s %s %ud at 0x%llx", 
 		isread ? "read" : "write", part->name, count, offset);
 	if(offset >= part->size || offset+count > part->size){
-		seterr(EStrange, "out of bounds %s offset 0x%llux count %ud to partition %s size 0x%llux",
+		seterr(EStrange, "out of bounds %s offset 0x%llux count %llud to partition %s size 0x%llux",
 			isread ? "read" : "write", offset, count, part->name, part->size);
 		return -1;
 	}
@@ -452,14 +454,14 @@ rwpart(Part *part, int isread, u64int offset, u8int *buf, u32int count)
 #endif
 	return n;
 }
-int
-readpart(Part *part, u64int offset, u8int *buf, u32int count)
+vlong
+readpart(Part *part, u64int offset, u8int *buf, u64int count)
 {
 	return rwpart(part, 1, offset, buf, count);
 }
 
-int
-writepart(Part *part, u64int offset, u8int *buf, u32int count)
+vlong
+writepart(Part *part, u64int offset, u8int *buf, u64int count)
 {
 	return rwpart(part, 0, offset, buf, count);
 }
@@ -503,7 +505,7 @@ tryplan9part(Part *part, char *name)
 	uchar buf[512];
 	char *line[40], *f[4];
 	int i, n;
-	vlong start, end;
+	ulong start, end;
 
 	/*
 	 * Partition table in second sector.
