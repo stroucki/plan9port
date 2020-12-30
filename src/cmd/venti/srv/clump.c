@@ -186,9 +186,11 @@ loadclump(Arena *arena, u64int aa, int blocks, Clump *cl, u8int *score, int veri
 			freezblock(zb);
 			return nil;
 		}
-		scoremem(bh, buf, cl->info.uncsize);
-		if(scorecmp(cl->info.score, bh) != 0)
-			seterr(ECorrupt, "pre-copy sha1 wrong at %s %llud: expected=%V got=%V", arena->name, aa, cl->info.score, bh);
+                if (verify) {
+			scoremem(bh, buf, cl->info.uncsize);
+			if(scorecmp(cl->info.score, bh) != 0)
+				seterr(ECorrupt, "pre-copy sha1 wrong at %s %llud: expected=%V got=%V", arena->name, aa, cl->info.score, bh);
+		}
 		memmove(zb->data, buf, cl->info.uncsize);
 		break;
 	default:
