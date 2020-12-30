@@ -156,16 +156,23 @@ threadmain(int argc, char *argv[])
 		if(ix->arenas[i]->part != p){
 			p = ix->arenas[i]->part;
 			vtproc(arenapartproc, p);
+			// XXXstroucki parallel flag
+			/*
 			if(++napart >= maxdisks){
 				recvp(arenadonechan);
 				nfinish++;
 			}
+			*/
+                        recvp(arenadonechan); nfinish++;
 		}
 	}
 
+        // XXXstroucki parallel flag
 	/* wait for arena procs to finish */
+	/*
 	for(; nfinish<napart; nfinish++)
 		recvp(arenadonechan);
+	*/
 
 	/* tell index procs to finish */
 	for(i=0; i<ix->nsects; i++)
