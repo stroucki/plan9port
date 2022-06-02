@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <bio.h>
+#include <regexp.h>
 #include "dat.h"
 
 void xapm(int);
@@ -26,39 +27,25 @@ void (*statfn[])(int) =
 void
 xapm(int first)
 {
-	static int fd = -1, fdb = -1;
-	int i, last = -1, curr = -1;
+	static int fd = -1;
+	int curr = -1;
 
 	if(first){
-		fd = open("/proc/acpi/battery/BAT0/info", OREAD);
-		fdb = open("/proc/acpi/battery/BAT0/state", OREAD);
+		fd = open("/sys/class/power_supply/BAT0/capacity", OREAD);
 		return;
 	}
-	if(fd == -1 || fdb == -1)
+	if(fd == -1)
 		return;
 
 	readfile(fd);
-	for(i=0; i<nline; i++){
-		tokens(i);
-		if(ntok < 3)
-			continue;
-		if(strcmp(tok[0], "last") == 0 && strcmp(tok[1], "full") == 0)
-			last = atoi(tok[3]);
-	}
-	readfile(fdb);
-	for(i = 0; i < nline; i++) {
-		tokens(i);
-		if(ntok < 3)
-			continue;
-		if(strcmp(tok[0], "remaining") == 0 && strcmp(tok[1], "capacity:") == 0)
-			curr = atoi(tok[2]);
-	}
-			
-	if(curr != -1 && last != -1)
-		Bprint(&bout, "battery =%d 100\n", (int)(((float)curr/(float)last)*100.0));
+	tokens(0);
+	curr = atoi(tok[0]);
+
+	if(curr != -1)
+		Bprint(&bout, "battery =%d 100\n", curr);
 
 }
-	
+
 void
 xloadavg(int first)
 {
@@ -133,9 +120,11 @@ xnet(int first)
 	vlong totb, totp, tote, totin, totou, totinb, totoub, b, p, e, in, ou, inb, oub;
 	char *q;
 	static int fd = -1;
+	static Reprog *netdev = nil;
 
 	if(first){
 		fd = open("/proc/net/dev", OREAD);
+		netdev = regcomp("^(eth[0-9]+|wlan[0-9]+|enp[0-9]+s[0-9]+f[0-9]+|wlp[0-9]+s[0-9]+)$");
 		return;
 	}
 
@@ -154,7 +143,7 @@ xnet(int first)
 		tokens(i);
 		if(ntok < 8+8)
 			continue;
-		if(strncmp(tok[0], "eth", 3) != 0 && strncmp(tok[0], "wlan", 4) != 0)
+		if(regexec(netdev, tok[0], nil, 0) != 1)
 			continue;
 		inb = atoll(tok[1]);
 		oub = atoll(tok[9]);
@@ -249,10 +238,12 @@ void
 xwireless(int first)
 {
 	static int fd = -1;
+	static Reprog *wlan = nil;
 	int i;
-	
+
 	if(first){
 		fd = open("/proc/net/wireless", OREAD);
+		wlan = regcomp("^(wlan[0-9]+|wlp[0-9]+s[0-9]+):$");
 		return;
 	}
 
@@ -261,7 +252,7 @@ xwireless(int first)
 		tokens(i);
 		if(ntok < 3)
 			continue;
-		if(strcmp(tok[0], "wlan0:") == 0)
+		if(regexec(wlan, tok[0], nil, 0) == 1)
 			Bprint(&bout, "802.11 =%lld 100\n", atoll(tok[2]));
 	}
 }

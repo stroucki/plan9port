@@ -81,7 +81,11 @@ _string(Image *dst, Point pt, Image *src, Point sp, Font *f, char *s, Rune *r, i
 	}else
 		rptr = &r;
 	sf = nil;
+#if defined(__AIX__)
+	while((*s || *rptr) && len){
+#else
 	while((*s || *r) && len){
+#endif
 		max = Max;
 		if(len < max)
 			max = len;
@@ -137,7 +141,7 @@ _string(Image *dst, Point pt, Image *src, Point sp, Font *f, char *s, Rune *r, i
 				else
 					break;
 			}
-			/* 
+			/*
 			 * must not free sf until cachechars has found it in the cache
 			 * and picked up its own reference.
 			 */

@@ -4,7 +4,7 @@ test -f $PLAN9/config && . $PLAN9/config
 usegcc()
 {
 	cc=${CC9:-gcc}
-	ngflags=" \
+	cflags=" \
 		-O2 \
 		-c \
 		-Wall \
@@ -14,12 +14,18 @@ usegcc()
 		-Wno-comment \
 		-Wno-sign-compare \
 		-Wno-unknown-pragmas \
+		-Wno-misleading-indentation \
+		-Wno-stringop-truncation \
+		-Wno-stringop-overflow \
+		-Wno-format-truncation \
 		-fno-omit-frame-pointer \
 		-fsigned-char \
+		-fcommon \
 	"
 	# want to put -fno-optimize-sibling-calls here but
 	# that option only works with gcc3+ it seems
-	cflags="$ngflags -ggdb"
+	cflags="$cflags -ggdb"
+	cflags="$cflags $CC9FLAGS"
 }
 
 quiet()
@@ -55,7 +61,7 @@ quiet()
 useclang()
 {
 	cc=${CC9:-clang}
-	ngflags=" \
+	cflags=" \
 		-O2 \
 		-c \
 		-Wall \
@@ -73,45 +79,50 @@ useclang()
 		-Wno-unneeded-internal-declaration \
 		-fsigned-char \
 		-fno-caret-diagnostics \
+		-fcommon \
 	"
-	cflags="$ngflags -g"
+	cflags="$cflags -g"
+	cflags="$cflags $CC9FLAGS"
 }
 
-tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
+usexlc()
+{
+	cc=${CC9:-xlc_r}
+	cflags=" \
+		-c \
+		-O2 \
+		-qmaxmem=-1 \
+		-qsuppress=1506-236 \
+		-qsuppress=1506-358 \
+		-qsuppress=1500-010 \
+		-qsuppress=1506-224 \
+		-qsuppress=1506-1300 \
+		-qsuppress=1506-342 \
+	"
+	cflags="$cflags -g -qdbxextra -qfullpath"
+	cflags="$cflags $CC9FLAGS"
+}
+
+tag="${SYSNAME:-`uname`}-${CC9:-cc}"
 case "$tag" in
-*FreeBSD*gcc*)	usegcc ;;
-*FreeBSD*clang*)	useclang ;;
-*DragonFly*|*BSD*)	usegcc ;;
-*Darwin-x86_64*)
+*DragonFly*gcc*|*BSD*gcc*)	usegcc ;;
+*DragonFly*clang|*BSD*clang*)	useclang ;;
+*Darwin*)
 		useclang
-		cflags="$ngflags -g3 -m64"
+		cflags="$cflags -g3 -m64"
 		;;
-*Darwin*clang*)
-		useclang
-		cflags="$ngflags -g3 -m32"
-		;;
-*Darwin*)	usegcc 
-		cflags="$ngflags -g3 -no-cpp-precomp -m32" ;;
 *HP-UX*)	cc=${CC9:-cc}; cflags="-g -O -c -Ae" ;;
-*Linux*)	usegcc 
+*Linux*)	usegcc
 		case "${CC9:-gcc}" in
 		tcc)
 			cc=tcc
 			cflags="-c -g"
 			;;
 		esac
-		case "${SYSVERSION:-`uname -r`}" in
-		2.4.*)
-			cflags="$cflags -D__Linux24__"
-			;;
-		2.6.*)
-			cflags="$cflags -D__Linux26__"
-			;;
-		esac
 		;;
 *OSF1*)		cc=${CC9:-cc}; cflags="-g -O -c" ;;
 *SunOS*-cc)	cc=cc;
-		cflags="-mt -g -O -c -xCC -D__sun__" 
+		cflags="-mt -g -O -c -xCC -D__sun__"
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
@@ -121,11 +132,11 @@ case "$tag" in
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
-		cflags="$ngflags -g"
+		cflags="$cflags -g"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
-*AIX*)		usegcc
-		cflags="$ngflags -g -D__AIX__"
+*AIX*)		usexlc
+		cflags="$cflags -g -D__AIX__"
 		;;
 *)
 	echo 9c does not know how to compile on "$tag" 1>&2
@@ -133,7 +144,7 @@ case "$tag" in
 esac
 
 # N.B. Must use temp file to avoid pipe; pipe loses status.
-xtmp=/tmp/9c.$$.$USER.out
+xtmp=${TMPDIR-/tmp}/9c.$$.$USER.out
 $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>$xtmp
 status=$?
 quiet $xtmp

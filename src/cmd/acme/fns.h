@@ -25,7 +25,9 @@ void	savemouse(Window*);
 int	restoremouse(Window*);
 void	clearmouse(void);
 void	allwindows(void(*)(Window*, void*), void*);
-uint loadfile(int, uint, int*, int(*)(void*, uint, Rune*, int), void*);
+uint seqof(Window*, int);
+
+uint loadfile(int, uint, int*, int(*)(void*, uint, Rune*, int), void*, DigestState*);
 void	movetodel(Window*);
 
 Window*	errorwin(Mntdir*, int);
@@ -93,6 +95,9 @@ Rune*	findbl(Rune*, int, int*);
 char*	edittext(Window*, int, Rune*, int);
 void		flushwarnings(void);
 void		startplumbing(void);
+long	nlcount(Text*, long, long, long*);
+long	nlcounttopos(Text*, long, long, long);
+Rune*	parsetag(Window*, int, int*);
 
 Runestr	runestr(Rune*, uint);
 Range range(int, int);

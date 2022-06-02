@@ -5,7 +5,9 @@
 #include <errno.h>
 #include <grp.h>
 #include <termios.h>
+#ifdef HAS_SYS_TERMIOS
 #include <sys/termios.h>
+#endif
 #ifdef __linux__
 #include <pty.h>
 #endif
@@ -20,7 +22,7 @@ static char *abc =
 	"abcdefghijklmnopqrstuvwxyz"
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"0123456789";
-static char *_123 = 
+static char *_123 =
 	"0123456789"
 	"abcdefghijklmnopqrstuvwxyz"
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -61,8 +63,10 @@ childpty(int fd[], char *slave)
 	sfd = open(slave, ORDWR);
 	if(sfd < 0)
 		sysfatal("child open %s: %r\n", slave);
+#if !defined (__AIX__)
 	if(ioctl(sfd, TIOCSCTTY, 0) < 0)
 		fprint(2, "ioctl TIOCSCTTY: %r\n");
+#endif
 	return sfd;
 }
 
@@ -111,4 +115,3 @@ getintr(int fd)
 		return 0x7F;
 	return ttmode.c_cc[VINTR];
 }
-
