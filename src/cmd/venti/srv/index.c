@@ -794,28 +794,20 @@ bucklook(u8int *score, int otype, u8int *data, int n)
 int
 ientrycmp(const void *vie1, const void *vie2)
 {
-	u8int *ie1, *ie2;
-	int i, v1, v2;
-
-	ie1 = (u8int*)vie1;
-	ie2 = (u8int*)vie2;
-	for(i = 0; i < VtScoreSize; i++){
-		v1 = ie1[i];
-		v2 = ie2[i];
-		if(v1 != v2){
-			if(v1 < v2)
-				return -1;
-			return 1;
-		}
+	int val = memcmp(vie1, vie2, VtScoreSize);
+	val = (val < 0) ? -1 : (val > 0);
+	if (val) {
+		return val;
 	}
-	v1 = ie1[IEntryTypeOff];
-	v2 = ie2[IEntryTypeOff];
-	if(v1 != v2){
-		if(v1 < v2)
-			return -1;
-		return 1;
+	u8int *ie1 = (u8int*)vie1;
+	u8int *ie2 = (u8int*)vie2;
+	if (ie1[IEntryTypeOff] == ie2[IEntryTypeOff]) {
+		val = 0;
+		return val;
+	} else {
+		val = ie1[IEntryTypeOff] < ie2[IEntryTypeOff] ? -1 : 1;
+		return val;
 	}
-	return 0;
 }
 
 /*
